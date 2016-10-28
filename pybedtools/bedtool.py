@@ -619,8 +619,16 @@ class BedTool(object):
         # pass zero-based directly to the pysam tabix interface.
         interval = helpers.string_to_interval(interval_or_string)
         tbx = pysam.TabixFile(self.fn)
+
+        # See https://github.com/daler/pybedtools/issues/190
+        # 1-st way:
+        # results = list(tbx.fetch(str(interval.chrom), interval.start, interval.stop))
+        # tbx.close()
+        # return BedTool(results)
+
+        # 2nd way:
         results = tbx.fetch(str(interval.chrom), interval.start, interval.stop)
-        return BedTool(results)
+        return (BedTool(results), tbx)
 
     def tabix(self, in_place=True, force=False, is_sorted=False):
         """
